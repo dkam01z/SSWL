@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+  <h1>{{event.eventname}}</h1>
+  <small>Written by {{event.creator}} on {{event.create_date}}</small>
+  <hr>
+  {% if event.fee > 0 %}
+    <a href="/checkout.html" class="btn btn-success pull-right">Apply</a>
+  {% else %}
+    <a href="confirmation" class="btn btn-success pull-right">Apply</a>
+  {% endif %}
+
+  <div>
+    {{event.body | safe}}
+  </div>
+{% endblock %}

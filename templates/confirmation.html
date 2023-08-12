@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+    <address>
+        <center>    
+        <h1 style="text-align:center">Information About the event:</h1>  
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>  
+        <strong>Event name: {{event.eventname}}</strong>
+        <br><strong> Fee: £{{event.fee}}</strong>
+        <br><strong> Event's year group chosen: {{event.ygroup}}</strong>
+        <br><strong> Parent: David lanloff</strong>
+        <br><strong> Student's name: Locki Poppy</strong>
+        <br><strong> Form tutor: Mr  Mike</strong>
+        <br>
+        <abbr title="Phone">Phone number to contact:</abbr> (123) 456-7890
+        
+        </center>
+        
+    </address>
+  
+    <address>
+        <center>
+
+
+        <strong>Email us for enquiries</strong><br>
+        <a href="mailto:#">dankamran1@Gmail.com</a>
+        <br>
+        <br>
+        <br>
+        <form action="{{url_for('apply', EVENT_ID=event.EVENT_ID)}}" method="post" id="hide">
+        <input type="hidden" name="_method" value="Submit">
+        <input type="submit" value="Submit" class="btn btn-success">
+        </form>
+        </center>
+    </address>
+
+
+{% endblock %}
