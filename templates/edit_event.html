@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% block body %}
+  <h1>Edit Event</h1>
+  {% from "includes/_formhelpers.html" import render_field %}
+  <form method="POST" action="">
+    <div class="form-group">
+      {{ render_field(form.eventname, class_="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.body, class_="form-control", id="editor") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.fee, class_="form-control", id="editor") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.event_date, class_="form-control", id="editor") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.Number_of_days, class_="form-control", id="editor") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.event_organiser, class_="form-control", id="editor") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.ygroup, class_="form-control", id="editor") }}
+    </div>
+    <div class="form-group">
+      {{ render_field(form.event_type, class_="form-control", id="editor") }}
+    </div>
+    <p><input class="btn btn-primary" type="submit" value="Submit">
+  </form>
+{% endblock %}
