@@ -1,7 +1,7 @@
 from functools import wraps
 from flask.sessions import NullSession
 from wtforms.fields.core import BooleanField, DateField, DecimalField, FloatField, IntegerField, SelectField, SelectMultipleField, TimeField
-from data import Events
+
 from flask import Flask , render_template, flash, redirect, url_for , session , logging, request
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField,PasswordField, validators, SelectField
