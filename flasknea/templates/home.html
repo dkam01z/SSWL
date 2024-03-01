@@ -1,12 +1,24 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <div class="jumbotron text-center">
-    <h1>Welcome To SSWL Bookings</h1>
-    <p class="lead">This application is built by a student!</p>
-    {% if session.logged_in == NULL %}
+  <div class="jumbotron jumbotron-fluid d-flex align-items-center text-center "  style="background:url(https://content.codecademy.com/courses/learn-bootstrap-4/adhoc/jumbotron.png) no-repeat; background-size: cover; height: 50vh;">
+
+    <div class="container-fluid text-light">
+      <h1 >Welcome To SSWL Bookings</h1>
+      <p class="lead">This application is built by a student!</p>
+      {% if session.logged_in == NULL %}
+
+
+
       <a href="/register" class="btn btn-primary btn-lg">Register</a>
-      <a href="/login" class="btn btn-success btn-lg">Login</a>
-    {% endif %}
+      <a href="/login"  type="button" class="btn btn-success btn-lg">Login</a>
+
+
+
+
+  {% endif %}
+
+    </div>
+
   </div>
 {% endblock %}

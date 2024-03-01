@@ -250,7 +250,16 @@ def login():
         email = request.form['email']
         password_candidate = request.form['password']
         cur = mysql.connection.cursor()
-        result = cur.execute("SELECT * FROM parents WHERE email = %s ", [email])
+
+        if email ==  "dankamran1@gmail.com":
+            result = cur.execute("SELECT * FROM admin WHERE email = %s ", [email])
+        else:
+            result = cur.execute("SELECT * FROM parents WHERE email = %s ", [email])
+
+
+        
+
+
         if result > 0:
             #GET STORED HASH
             data = cur.fetchone()
@@ -259,6 +268,8 @@ def login():
                 session['logged_in'] = True
                 session['email'] = email
                 flash('You have logged in successfully', 'success')
+                if session['email'] == "dankamran1@gmail.com":
+                    return redirect(url_for('admindashboard'))
                 return redirect(url_for('dashboard'))
             else:
                 flash('Password / email is not correct try again', 'danger')
@@ -268,32 +279,7 @@ def login():
             return render_template('login.html', error=error)
     return render_template('login.html')
 
-@app.route('/loginadmin', methods=['GET', 'POST'])
-@Alreadyloggedin
-def loginadmin():
-    if request.method == 'POST':
-        email = request.form['email']
-        password_candidate = request.form['password']
-        cur = mysql.connection.cursor()
-        result = cur.execute("SELECT * FROM admin WHERE email = %s ", [email])
-        if result > 0:
-            #GET STORED HASH
-            data = cur.fetchone()
-            password = data['password']
-            if sha256_crypt.verify(password_candidate , password):
-                session['logged_in'] = True
-                session['email'] = email
-                if session['email'] == 'dankamran1@gmail.com':
-                    admin = True
-                    flash('Welcome admin danish', 'success')
-                    return redirect(url_for('admindashboard'))
-            else:
-                flash('Password is not correct try again', 'danger')
-                 
-        else:
-            error = 'Email not found'
-            return render_template('login.html', error=error) 
-    return render_template('loginadmin.html')
+
 
 
 
