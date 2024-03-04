@@ -1,6 +1,29 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+
+
+<style>
+
+.transparent-input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #ff8080;
+    color: inherit; 
+    box-shadow: none;
+    outline: none;
+    border-radius: 0; 
+}
+
+
+
+  .transparent-input:focus {
+    border-color: none; 
+    outline: 0;
+    box-shadow: none; 
+    
+  }
+</style>
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-10">
@@ -12,27 +35,27 @@
 
             <div class="row g-3">
               <div class="col-md-6 form-group">
-               {{ render_field(form.eventname, class_="form-control", placeholder="Event Name") }}
+               {{ render_field(form.eventname, class_="transparent-input form-control", placeholder="Event Name") }}
               </div>
               <div class="col-md-6 form-group">
-                {{ render_field(form.event_date, class_="form-control", id="eventDate", placeholder="Event Date" , type="date") }}
+                {{ render_field(form.event_date, class_="transparent-input form-control", id="eventDate", placeholder="Event Date" , type="date") }}
              </div>
               <div class="col-md-12 form-group">
-                     {{ render_field(form.body, class_="form-control", id="editor", placeholder="Event Description") }}
+                     {{ render_field(form.body, class_="transparent-input form-control", id="editor", placeholder="Event Description") }}
               </div>
 
               <div class="col-md-6 form-group">
-                {{ render_field(form.time_from, class_="form-control", id="timeFromPicker", type="time") }}
+                {{ render_field(form.time_from, class_="transparent-input form-control", id="timeFromPicker", type="time") }}
               </div>
               <div class="col-md-6 form-group">
-                   {{ render_field(form.time_to, class_="form-control", id="timeToPicker", type="time") }}
+                   {{ render_field(form.time_to, class_="transparent-input form-control", id="timeToPicker", type="time") }}
               </div>
               <div class="col-md-6 form-group">
-                {{ render_field(form.fee, class_="form-control", id="fee", placeholder="Fee", type="currency") }}
+                {{ render_field(form.fee, class_="transparent-input form-control", id="fee", placeholder="Fee", type="currency") }}
              </div>
              
              <div class="col-md-6 form-group">
-              {{ render_field(form.Number_of_days, class_="form-control", id="Number_of_days", type="number") }}
+              {{ render_field(form.Number_of_days, class_="transparent-input form-control", id="Number_of_days", type="number") }}
             </div>
             </div>
 
@@ -41,13 +64,13 @@
 
 
               <div class="col-md-6 form-group">
-                {{ render_field(form.event_organiser, class_="form-control", id="eventOrganiser", placeholder="Event Organiser") }}
+                {{ render_field(form.event_organiser, class_="transparent-input form-control", id="eventOrganiser", placeholder="Event Organiser") }}
               </div>
               <div class="col-md-6 form-group">
-                 {{ render_field(form.event_type, class_="form-control", id="eventType", placeholder="Event Type") }}
+                 {{ render_field(form.event_type, class_="transparent-input form-control", id="eventType", placeholder="Event Type") }}
               </div>
               <div class="col-md-12 form-group">
-                 {{ render_field(form.ygroup, class_="form-control", id="yGroup", placeholder="Year Group") }}
+                 {{ render_field(form.ygroup, class_="transparent-input transparent-input form-control", id="yGroup", placeholder="Year Group") }}
               </div>
  
             </div>

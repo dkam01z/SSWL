@@ -86,19 +86,19 @@ def create_payment():
 
 
 class RegisterForm(Form):
-    firstname = StringField('First Name', [validators.Length(min=1 , max=50)])
-    surname = StringField('Surname', [validators.Length(min=1,max=25)])
-    number = StringField('Number', [validators.Length(min=7, max=14)])
-    email = EmailField('Email address', [validators.DataRequired(), validators.Email()])
-    sfirstname = StringField('Student firstname', [validators.Length(min=1,max=50)])
-    ssurname = StringField('Student Surname', [validators.Length(min=1,max=50)])
-    password = PasswordField('password', [
+    firstname = StringField('', [validators.Length(min=1 , max=50)])
+    surname = StringField('', [validators.Length(min=1,max=25)])
+    number = StringField('', [validators.Length(min=7, max=14)])
+    email = EmailField('', [validators.DataRequired(), validators.Email()])
+    sfirstname = StringField('', [validators.Length(min=1,max=50)])
+    ssurname = StringField('', [validators.Length(min=1,max=50)])
+    password = PasswordField('', [
         validators.DataRequired(),
-        validators.EqualTo('confirm', message='Password does not match!')
+        validators.EqualTo('', message='Password does not match!')
     ])
-    confirm = PasswordField('Confirm Password')
-    fgroup = SelectField('Select form group', choices=['Mr BotMan' , 'Mr Embassador', 'Mr Mike', 'Miss Puff', 'Miss many'])
-    ygroup = SelectField('Select year group' , choices=['Year 10', 'Year 11', 'Year 12', 'Year 13'])
+    confirm = PasswordField('')
+    fgroup = SelectField('', choices=['Mr BotMan' , 'Mr Embassador', 'Mr Mike', 'Miss Puff', 'Miss many'])
+    ygroup = SelectField('' , choices=['Year 10', 'Year 11', 'Year 12', 'Year 13'])
 
 
 
@@ -309,14 +309,17 @@ def logout():
     flash('You have suessfully logged out', 'success')
     return redirect(url_for('login'))   
 
+from datetime import datetime
+from flask import render_template, session, request
+# Assuming mysql and is_logged_in are already imported
+
 @app.route('/dashboard', methods=['GET'])
 @is_logged_in
 def dashboard():
     if request.method == 'GET':
-     
         cur = mysql.connection.cursor()
 
-   
+        # Fetch student info
         cur.execute("SELECT student_id, ygroup FROM STUDENT WHERE PARENT_ID = (SELECT Parent_id FROM PARENTS WHERE email = %s)", [session['email']])
         student_info = cur.fetchone()
 
@@ -324,14 +327,25 @@ def dashboard():
             student_id = student_info['student_id']
             ygroup = student_info['ygroup']
 
-          
+            # Fetch events
             result = cur.execute("""
-            SELECT e.* FROM EVENTS e
-            LEFT JOIN student_event se ON e.EVENT_ID = se.event_id AND se.student_id = %s
-            WHERE (se.applied = 0 OR se.applied IS NULL) AND e.ygroup = %s
+                SELECT e.* FROM EVENTS e
+                LEFT JOIN student_event se ON e.EVENT_ID = se.event_id AND se.student_id = %s
+                WHERE (se.applied = 0 OR se.applied IS NULL) AND e.ygroup = %s
             """, (student_id, ygroup))
 
             events = cur.fetchall()
+
+          
+            current_date = datetime.now().date()
+
+      
+   
+            for event in events:
+    
+                event_date = event['event_date']
+                deadline = (event_date - current_date).days
+                event['deadline'] = deadline 
 
             if result > 0:
                 return render_template('dashboard.html', events=events)
@@ -341,7 +355,7 @@ def dashboard():
         else:
             msg = 'No student or year group found for this parent'
             return render_template('dashboard.html', msg=msg)
-        
+
         cur.close()
 
 
@@ -437,7 +451,7 @@ def add_event():
 
         flash('Event created successfully', 'success')
         return redirect(url_for('dashboard'))
-    else:
+    elif not request.method:
       
         flash('Error creating the event. Please check your inputs.', 'danger')
 

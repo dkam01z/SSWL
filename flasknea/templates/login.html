@@ -56,19 +56,23 @@ body.background-image-overlay {
   }
 
  
-  
   .transparent-input {
-    background-color: transparent; 
-    border: 1px solid #ced4da; 
-    color: #495057; 
-    box-shadow: none; 
-  }
+    background-color: transparent;
+    border: none; /* Removes all borders */
+    border-bottom: 1px solid #ff8080; /* Adds a border only at the bottom */
+    color: inherit; /* Use 'inherit' to maintain the text color from the parent */
+    box-shadow: none;
+    outline: none;
+    border-radius: 0; /* Removes any curving by setting the border-radius to 0 */
+}
+
 
   /* Optional: Adjust focus styles for transparent inputs */
   .transparent-input:focus {
-    border-color: #ff8080; 
+    border-color: none; 
     outline: 0;
     box-shadow: none; 
+    
   }
 </style>
 

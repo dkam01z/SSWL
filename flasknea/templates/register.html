@@ -19,6 +19,25 @@ body.background-image-overlay {
   z-index: 1;
 }
 
+.transparent-input {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #ff8080;
+    color: inherit; 
+    box-shadow: none;
+    outline: none;
+    border-radius: 0; 
+}
+
+
+
+  .transparent-input:focus {
+    border-color: none; 
+    outline: 0;
+    box-shadow: none; 
+    
+  }
+
 .navbar ul li a {
   color: rgb(233, 233, 233);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -40,23 +59,22 @@ body.background-image-overlay {
           <h3 class="card-title text-center mb-4">Register</h3>
           <form method="POST" action="">
             <!-- Student Information Section -->
-            <h4 class="mb-3 font-weight-bold">Student Information</h4>
             <div class="row g-3">
               <div class="col-md-4 form-group">
-                {{ render_field(form.sfirstname, class_="form-control", placeholder="First Name") }}
+                {{ render_field(form.sfirstname, class_="transparent-input form-control", placeholder="First Name") }}
               </div>
               <div class="col-md-4 form-group">
-                {{ render_field(form.ssurname, class_="form-control", placeholder="Surname") }}
+                {{ render_field(form.ssurname, class_="transparent-input form-control", placeholder="Surname") }}
               </div>
 
               <div class="col-md-4 form-group">
-                {{ render_field(form.number, class_="form-control", placeholder="Phone Number") }}
+                {{ render_field(form.number, class_="transparent-input form-control", placeholder="Phone Number") }}
               </div>
               <div class="col-md-6 form-group">
-                {{ render_field(form.fgroup, class_="form-control", placeholder="Functional Group") }}
+                {{ render_field(form.fgroup, class_="transparent-input form-control", placeholder="Functional Group") }}
               </div>
               <div class="col-md-6 form-group">
-                {{ render_field(form.ygroup, class_="form-control", placeholder="Year Group") }}
+                {{ render_field(form.ygroup, class_="transparent-input form-control", placeholder="Year Group") }}
               </div>
             </div>
 
@@ -65,13 +83,13 @@ body.background-image-overlay {
             <div class="row g-3">
 
               <div class="col-md-6 form-group">
-                {{ render_field(form.firstname, class_="form-control", placeholder="First Name") }}
+                {{ render_field(form.firstname, class_="transparent-input form-control", placeholder="First Name") }}
               </div>
               <div class="col-md-6 form-group">
-                {{ render_field(form.surname, class_="form-control", placeholder="Surname") }}
+                {{ render_field(form.surname, class_="transparent-input form-control", placeholder="Surname") }}
               </div>
               <div class="col-md-12 form-group">
-                {{ render_field(form.email, class_="form-control", placeholder="Email") }}
+                {{ render_field(form.email, class_="transparent-input form-control", placeholder="Email") }}
               </div>
  
             </div>
@@ -80,10 +98,10 @@ body.background-image-overlay {
             
             <div class="row g-3 mb-3 mt-1">
               <div class="col-md-6 form-group">
-                {{ render_field(form.password, class_="form-control", placeholder="Password") }}
+                {{ render_field(form.password, class_="transparent-input form-control", placeholder="Password") }}
               </div>
               <div class="col-md-6 form-group">
-                {{ render_field(form.confirm, class_="form-control", placeholder="Confirm Password") }}
+                {{ render_field(form.confirm, class_="transparent-input form-control", placeholder="Confirm Password") }}
               </div>
 
             </div>
