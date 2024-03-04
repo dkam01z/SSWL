@@ -1,6 +1,12 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+
+  <style>
+
+    
+  </style>
+
   <h1>Dashboard <small> Welcome {{session.email}}</small></h1>
   
   {% if session.logged_in %}
@@ -17,6 +23,7 @@
       <th>Date_Created</th>
       <th>Deadline</th>
       <th>Fee</th>
+   
       
     </tr>
     {% for event in events %}
@@ -29,8 +36,8 @@
         <td>£{{event.fee}}</td>
         {% if session.logged_in %}
           {% if session['email'] == 'dankamran1@gmail.com' %}
-            <td><a href="edit_event/{{event.EVENT_ID}}" class="btn btn-default pull-right">Edit</a></td>
-            <td><a href="check/{{event.EVENT_ID}}" class="btn btn-primary pull-left">Check</a></td>  
+            <td><a href="edit_event/{{event.EVENT_ID}}" class="btn btn-default float-start">Edit</a></td>
+            <td><a href="check/{{event.EVENT_ID}}" class="btn btn-primary float-end">Check</a></td>  
           {% else%}
             <td><a href="event/{{event.EVENT_ID}}" class="btn btn-success pull-right">Apply</a></td>
           {% endif %}
@@ -40,7 +47,7 @@
           {% if session['email'] == 'dankamran1@gmail.com' %}
             <form action="{{url_for('delete_event', EVENT_ID=event.EVENT_ID)}}" method="post">
             <input type="hidden" name="_method" value="DELETE">
-            <input type="submit" value="Delete" class="btn btn-danger pull-left ">
+            <input type="submit" value="Delete" class="btn btn-danger float-right">
           </form>
           {% endif %}
         </td>

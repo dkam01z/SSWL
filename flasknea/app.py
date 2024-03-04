@@ -50,7 +50,12 @@ mysql = MySQL(app)
 
 @app.route("/")
 def index():
-    return render_template('home.html')
+
+    if 'logged_in' in session:
+        return redirect(url_for('dashboard'))
+    
+
+    return redirect(url_for('login'))
 
 def calculate_order_amount(items):
     # Replace this constant with a calculation of the order's amount
@@ -76,24 +81,6 @@ def create_payment():
         })
     except Exception as e:
         return jsonify(error=str(e)), 403
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/events')
-def events():
-    cur = mysql.connection.cursor()
-
-    result = cur.execute("SELECT * FROM events")
-    events = cur.fetchall()
-
-    if result > 0:
-        return render_template('events.html', events=events)
-    else:
-        msg = 'No events found'
-        return render_template('events.html', msg=msg)
-    cur.close()
 
 
 
