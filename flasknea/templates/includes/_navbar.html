@@ -8,13 +8,13 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-md navbar-light bg-light">
+<nav class="navbar navbar-expand-md ">
     <div class="container">
         <a class="navbar-brand" href="#">SSWL BOOKINGS</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse text-center fs-4 column-gap-3 " id="navbarNav">
+        <div class="collapse navbar-collapse text-center  column-gap-3 " id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
@@ -23,13 +23,13 @@
                 <li class="nav-item"><a class="nav-link" href="/events">Events</a></li>
                 {% endif %}
             </ul>
-            <ul class="navbar-nav fs-4 column-gap-3">
+            <ul class="navbar-nav  column-gap-3">
                 {% if session.logged_in %}
                     {% if session['email'] == 'dankamran1@gmail.com' %}
-                        <li class="nav-item"><a class="nav-link" href="/admin-dashboard">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
                         <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
                     {% else %}
-                        <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+
                         <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
                     {% endif %}
                 {% else %}

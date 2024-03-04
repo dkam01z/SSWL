@@ -1,7 +1,8 @@
 from functools import wraps
 from flask.sessions import NullSession
 from wtforms.fields.core import BooleanField, DateField, DecimalField, FloatField, IntegerField, SelectField, SelectMultipleField, TimeField
-
+import smtplib
+import ssl
 from flask import Flask , render_template, flash, redirect, url_for , session , logging, request
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField,PasswordField, validators, SelectField
@@ -15,7 +16,8 @@ from flask_admin.contrib.sqla import ModelView
 from wtforms import validators
 from wtforms.fields.html5 import EmailField
 from flask import blueprints
-
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import email_validator
 from datetime import datetime
 import stripe
@@ -28,6 +30,7 @@ app = Flask(__name__, static_folder='templates',
 app.config.from_pyfile('config.cfg')
 
 app.secret_key = 'SECRET123'
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 socket.getaddrinfo('127.0.0.1', 5000)
 
@@ -162,12 +165,9 @@ def Alreadyloggedin(f):
     def wrap(*args , **kwargs):
         if 'logged_in' in session:
             flash('You are already logged in', 'danger')
-            if session['email'] == 'dankamran1@gmail.com':
-                return redirect(url_for('admindashboard'))
-            else:
-                return redirect(url_for('dashboard'))
-        else:
-            return f(*args , **kwargs)
+            return redirect(url_for('dashboard'))               
+
+        return f(*args , **kwargs)
     return wrap
 
 
@@ -200,28 +200,53 @@ def reset():
     x = cur.execute("SELECT * FROM parents WHERE email = (%s)", (email,))
     if int(x) == 0:
         flash("Email not found, try again", "danger")
-    else:
+        return render_template('forgot.html', form=form)
+    
+    if request.method == "POST":
         token = s.dumps(email, salt='email-confirm')
-
-        msg = Message('Confirm Email', sender='dankamran1@gmail.com', recipients=[email])
-
         link = url_for('confirm_email', token=token, _external=True)
+        subject = 'Confirm Email'
+        body = 'Your link is {}'.format(link)
+        sender_email = app.config['MAIL_USERNAME']
+        receiver_email = email
 
-        msg.body = 'Your link is {}'.format(link)
+    
+        message = MIMEMultipart()
+        message["From"] = sender_email
+        message["To"] = receiver_email
+        message["Subject"] = subject
+        message.attach(MIMEText(body, "plain"))
 
-        mail.send(msg)
-        flash('The email you entered is {}. The token is {}'.format(email, token), "success") 
-    mysql.connection.commit()
-    cur.close()
+        context = ssl.create_default_context()
+        if app.config['MAIL_USE_SSL']:
+            
+                
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(app.config['MAIL_SERVER'], app.config['MAIL_PORT'], context=context) as server:
+
+                server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+                server.send_message(message)
+        else:
+                
+            with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as server:
+                server.ehlo()
+                if app.config['MAIL_USE_TLS']:
+                    server.starttls()
+                    server.ehlo()
+                    server.login(app.config['MAIL_USERNAME'], app.config['MAIL_PASSWORD'])
+                    server.send_message(message)
+
+        flash('An email has been sent to {}. Please check your email to confirm your account.'.format(email), "success")
+        mysql.connection.commit()
+        cur.close()
     return render_template('forgot.html', form=form)
-
 
 @app.route('/confirm_email/<token>', methods=['GET', 'POST']) 
 def confirm_email(token):
     form = PasswordResetForm(request.form)
-    form2 = ResetEmail(request.form)
+    emailForm = ResetEmail(request.form)
     if request.method == 'POST' and form.validate():
-        emails = form2.email.data
+        emails = emailForm.email.data
         password = sha256_crypt.encrypt(str(form.password.data))
         try:
             s.loads(token, salt='email-confirm',  max_age=3600)
@@ -268,8 +293,6 @@ def login():
                 session['logged_in'] = True
                 session['email'] = email
                 flash('You have logged in successfully', 'success')
-                if session['email'] == "dankamran1@gmail.com":
-                    return redirect(url_for('admindashboard'))
                 return redirect(url_for('dashboard'))
             else:
                 flash('Password / email is not correct try again', 'danger')
@@ -336,22 +359,6 @@ def dashboard():
 
 
 
-@app.route('/admin-dashboard' , methods=['GET'])
-@is_logged_in
-def admindashboard():
-    if request.method == 'GET':
-        cur = mysql.connection.cursor()
-
-        result = cur.execute("select * from events" )
-        events =cur.fetchall()
-
-        if result >0:
-            return render_template('admin-dashboard.html' , events=events)
-        else:
-            msg = 'No events found'
-            return render_template('admin-dashboard.html', msg=msg)
-        cur.close()
-
 @app.route('/event/<string:EVENT_ID>/')
 @is_logged_in
 
@@ -369,7 +376,7 @@ def event(EVENT_ID):
 def check(EVENT_ID):
     cur = mysql.connection.cursor()
 
-    result = cur.execute("Select tb2.*, tb1.student_id,  tb1.EVENT_ID, tb3.* FROM STUDENT tb2 LEFT JOIN student_event tb1 ON tb2.STUDENT_ID = tb1.student_id  RIGHT JOIN parents tb3 on tb3.PARENT_ID = tb2.PARENT_ID where applied = 0 and EVENT_ID = %s", (EVENT_ID,))
+    result = cur.execute("Select tb2.*, tb1.student_id,  tb1.EVENT_ID, tb3.* FROM STUDENT tb2 LEFT JOIN student_event tb1 ON tb2.STUDENT_ID = tb1.student_id  RIGHT JOIN parents tb3 on tb3.PARENT_ID = tb2.PARENT_ID where applied = 0 OR applied IS NULL and EVENT_ID = %s", (EVENT_ID,))
     students = cur.fetchall()
     
     if result > 0:
@@ -442,7 +449,7 @@ def add_event():
         cur.close()
 
         flash('Event created successfully', 'success')
-        return redirect(url_for('admindashboard'))
+        return redirect(url_for('dashboard'))
     else:
       
         flash('Error creating the event. Please check your inputs.', 'danger')
@@ -514,7 +521,7 @@ def edit_event(EVENT_ID):
         cur.close()
 
         flash('Event updated', 'success')
-        return redirect(url_for('admindashboard'))
+        return redirect(url_for('dashboard'))
     return render_template('edit_event.html', form=form)
 
 @app.route('/delete_event/<string:EVENT_ID>', methods= ['POST'] )
@@ -527,7 +534,7 @@ def delete_event(EVENT_ID):
     mysql.connection.commit()
     cur.close()
     flash('Event deleted' , 'success')
-    return redirect(url_for('admindashboard'))
+    return redirect(url_for('dashboard'))
 @app.route('/event/<string:EVENT_ID>/apply', methods=['POST'])
 def apply(EVENT_ID):
     if request.method == 'POST':

@@ -1,27 +1,55 @@
 {% extends 'layout.html' %}
 
 {% block body %}
+<style>
+body.background-image-overlay {
+  background: url('https://scontent.flhr1-1.fna.fbcdn.net/v/t1.6435-9/103280594_3139132139485586_1121476758627010218_n.jpg?stp=cp0_dst-jpg_e15_fr_q65&_nc_cat=107&ccb=1-7&_nc_sid=b5f135&_nc_ohc=OILUW4G7KNUAX-FnEOh&_nc_ht=scontent.flhr1-1.fna&oh=00_AfA72sYITUEASFuWIuRPdcn8My-p4goVBxzewyru3C0NnA&oe=660CAB16') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-repeat: no-repeat;
+
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+}
+
+.navbar ul li a {
+  color: rgb(233, 233, 233);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: 500;
+
+}
+
+.container, .navbar {
+  position: relative;
+  z-index: 2; 
+}
+</style>
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-md-10">
       <div class="card shadow-lg border-0">
         <div class="card-body p-5">
           {% from "includes/_formhelpers.html" import render_field %}
-          <h2 class="card-title text-center mb-4">Register</h2>
+          <h3 class="card-title text-center mb-4">Register</h3>
           <form method="POST" action="">
             <!-- Student Information Section -->
-            <h3 class="mb-3 font-weight-bold">Student Information</h3>
+            <h4 class="mb-3 font-weight-bold">Student Information</h4>
             <div class="row g-3">
-              <div class="col-md-6 form-group">
-                {{ render_field(form.firstname, class_="form-control", placeholder="First Name") }}
+              <div class="col-md-3 form-group">
+                {{ render_field(form.sfirstname, class_="form-control", placeholder="First Name") }}
               </div>
               <div class="col-md-6 form-group">
-                {{ render_field(form.surname, class_="form-control", placeholder="Surname") }}
+                {{ render_field(form.ssurname, class_="form-control", placeholder="Surname") }}
               </div>
-              <div class="col-md-6 form-group">
-                {{ render_field(form.email, class_="form-control", placeholder="Email") }}
-              </div>
-              <div class="col-md-6 form-group">
+
+              <div class="col-md-3 form-group">
                 {{ render_field(form.number, class_="form-control", placeholder="Phone Number") }}
               </div>
               <div class="col-md-6 form-group">
@@ -33,19 +61,24 @@
             </div>
 
             <!-- Parent/Guardian Information Section -->
-            <h3 class="mb-3 mt-5 font-weight-bold">Parent/Guardian Information</h3>
+            <h4 class="mb-3 mt-5 font-weight-bold text-center">Parent/Guardian Information</h4>
             <div class="row g-3">
+
               <div class="col-md-6 form-group">
-                {{ render_field(form.sfirstname, class_="form-control", placeholder="First Name") }}
+                {{ render_field(form.firstname, class_="form-control", placeholder="First Name") }}
               </div>
               <div class="col-md-6 form-group">
-                {{ render_field(form.ssurname, class_="form-control", placeholder="Surname") }}
+                {{ render_field(form.surname, class_="form-control", placeholder="Surname") }}
               </div>
+              <div class="col-md-12 form-group">
+                {{ render_field(form.email, class_="form-control", placeholder="Email") }}
+              </div>
+ 
             </div>
 
-            <!-- Additional Information Section -->
-            <h3 class="mb-3 mt-5 font-weight-bold">Additional Information</h3>
-            <div class="row g-3">
+           
+            
+            <div class="row g-3 mb-3 mt-1">
               <div class="col-md-6 form-group">
                 {{ render_field(form.password, class_="form-control", placeholder="Password") }}
               </div>
@@ -55,7 +88,7 @@
 
             </div>
             <div class="text-center mt-4">
-              <input type="submit" class="btn btn-danger btn-lg" value="Register">
+              <input type="submit" class="btn btn-danger btn" value="Register">
             </div>
           </form>
         </div>

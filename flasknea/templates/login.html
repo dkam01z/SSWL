@@ -3,20 +3,60 @@
 {% block body %}
 
 <style>
+
+
+
+body.background-image-overlay {
+    background: url('https://scontent.flhr1-1.fna.fbcdn.net/v/t1.6435-9/103280594_3139132139485586_1121476758627010218_n.jpg?stp=cp0_dst-jpg_e15_fr_q65&_nc_cat=107&ccb=1-7&_nc_sid=b5f135&_nc_ohc=OILUW4G7KNUAX-FnEOh&_nc_ht=scontent.flhr1-1.fna&oh=00_AfA72sYITUEASFuWIuRPdcn8My-p4goVBxzewyru3C0NnA&oe=660CAB16') no-repeat center center fixed;
+    background-size: cover;
+  }
+
+  .background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-repeat: no-repeat;
+
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+  }
+
+  .navbar-brand {
+    color: rgb(233, 233, 233);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+
+  }
+
+  .navbar ul li a {
+  color: rgb(233, 233, 233);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-weight: 500;
+  
+
+}
+
+.navbar ul li a {
+  border: "1px solid white";
+}
+
+
+
+  .container, .navbar {
+    position: relative;
+    z-index: 2; 
+  }
+
   .custom-img {
     height: 150px;
     display: block;
     margin: 0 auto;
     object-fit: cover;
   }
+
+ 
   
-  /* Custom card body styles */
-  .custom-card-body {
-    width: 90%;
-    margin: 0 auto; /* Center the card body */
-  }
-
-
   .transparent-input {
     background-color: transparent; 
     border: 1px solid #ced4da; 
@@ -32,10 +72,10 @@
   }
 </style>
 
-<div class="  border border-0 container mt-4">
+<div class=" justify-content-center align-items-center border border-0 container mt-4 ">
   <div class=" row d-flex justify-content-center align-items-center">
     
-    <div class="col-md-4 shadow p-3 mb-5 bg-body-tertiary rounded">
+    <div class=" col-md-4 shadow p-3 bg-body-tertiary rounded">
       <div class="border border-0 card wrap">
         <img class="card-img-top custom-img " src='https://i2-prod.mylondon.news/incoming/article19304406.ece/ALTERNATES/s615/2_SpaceStudio-18-06-20-UK008JPG.jpg'>
         
@@ -45,20 +85,20 @@
        
 
           <div class="p-4">
-            <h1 class="text-center p-md-4">Sign In</h1>
+            <h1 class="h1 text-center p-md-4">Sign In</h1>
             <form class="" action="" method="POST">
-              <div class="form-group mb-3 ">
+              <div class="form-group mb-4 ">
                 <input type="text" name="email" class=" form-control transparent-input" placeholder="Username" value="{{ request.form.email }}" required>
               </div>
               <div class="form-group mb-3 ">
                 <input type="password" name="password" class="form-control transparent-input" placeholder="Password" value="{{ request.form.password }}" required>
               </div>
-              <div class="d-flex justify-content-between mb-3">
+              <div class="d-flex justify-content-between mb-5">
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" id="rememberMe">
                   <label class="form-check-label" for="rememberMe">Remember Me</label>
                 </div>
-                <a href="/forgot" class="text-decoration-none">Forgot Password?</a>
+                <a href="/forgot" class=" text-decoration-none">Forgot Password?</a>
               </div>
               <button type="submit" class="form-control btn btn-danger rounded submit px-3">Sign In</button>
             </form>
