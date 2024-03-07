@@ -319,10 +319,17 @@ from flask import render_template, session, request
 @app.route('/dashboard', methods=['GET'])
 @is_logged_in
 def dashboard():
-    if request.method == 'GET':
-        cur = mysql.connection.cursor()
+    cur = mysql.connection.cursor()
 
-        # Fetch student info
+    
+    if session['email'].lower() == 'dankamran1@gmail.com':
+        cur.execute("SELECT *, DATEDIFF(event_date, CURDATE()) AS deadline FROM EVENTS;")
+        allevents = cur.fetchall()
+     
+        cur.close()
+        return render_template('dashboard.html', events=allevents)
+    else:
+      
         cur.execute("SELECT student_id, ygroup FROM STUDENT WHERE PARENT_ID = (SELECT Parent_id FROM PARENTS WHERE email = %s)", [session['email']])
         student_info = cur.fetchone()
 
@@ -330,25 +337,16 @@ def dashboard():
             student_id = student_info['student_id']
             ygroup = student_info['ygroup']
 
-            # Fetch events
+            
             result = cur.execute("""
-                SELECT e.* FROM EVENTS e
+                SELECT e.*, DATEDIFF(e.event_date, CURDATE()) AS deadline FROM EVENTS e
                 LEFT JOIN student_event se ON e.EVENT_ID = se.event_id AND se.student_id = %s
                 WHERE (se.applied = 0 OR se.applied IS NULL) AND e.ygroup = %s
             """, (student_id, ygroup))
 
             events = cur.fetchall()
 
-          
-            current_date = datetime.now().date()
-
-      
-   
-            for event in events:
-    
-                event_date = event['event_date']
-                deadline = (event_date - current_date).days
-                event['deadline'] = deadline 
+            cur.close()
 
             if result > 0:
                 return render_template('dashboard.html', events=events)
@@ -358,9 +356,6 @@ def dashboard():
         else:
             msg = 'No student or year group found for this parent'
             return render_template('dashboard.html', msg=msg)
-
-        cur.close()
-
 
 
 @app.route('/event/<string:EVENT_ID>/')
@@ -397,8 +392,8 @@ class eventform(Form):
     eventname = StringField('Event', [validators.Length(min=1 , max=50)])
     body = TextAreaField('Body', [validators.Length(min=25)])
     fee = FloatField('Fee')
-    time_from = TimeField('Time from')
-    time_to = TimeField('Time to')
+    time_from = TimeField('Time from', format='%H:%M')
+    time_to = TimeField('Time to', format='%H:%M')
     event_date = DateField('Event Date', format='%Y-%m-%d')
     creator = StringField('Creator')
     Number_of_days = IntegerField('Number of days')
@@ -502,8 +497,7 @@ def edit_event(EVENT_ID):
         eventname = request.form['eventname']
         body = request.form['body']
         fee = request.form['fee']
-        #time_from = request.form['time_from']
-        #time_to = request.form['time_to']
+
         event_date = request.form['event_date']
         creator = form.creator.data
         organiser = request.form['event_organiser']
