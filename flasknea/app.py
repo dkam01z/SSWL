@@ -314,7 +314,7 @@ def logout():
 
 from datetime import datetime
 from flask import render_template, session, request
-# Assuming mysql and is_logged_in are already imported
+
 
 @app.route('/dashboard', methods=['GET'])
 @is_logged_in
