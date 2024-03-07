@@ -158,6 +158,17 @@ def Alreadyloggedin(f):
     return wrap
 
 
+def isNotAdmin(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if session.get('email') != 'dankamran1@gmail.com':
+            return f(*args, **kwargs)
+        else:
+            flash('Access restricted for Admin.', 'danger')
+            return redirect(url_for('dashboard'))
+    return wrap
+
+
 
 
 
@@ -360,6 +371,7 @@ def dashboard():
 
 @app.route('/event/<string:EVENT_ID>/')
 @is_logged_in
+@isNotAdmin
 
 def event(EVENT_ID):
     cur = mysql.connection.cursor()
