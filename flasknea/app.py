@@ -300,8 +300,11 @@ def confirmation(EVENT_ID):
     cur.execute("SELECT * FROM events WHERE EVENT_ID = %s", [EVENT_ID])
     event = cur.fetchone()
 
+    cur.execute("select tb1.firstname, tb2.sfirstname, tb2.fgroup from parents tb1 left join student tb2 on tb1.parent_id = tb2.parent_id where email = %s ",  [session['email']])
+    student_parent = cur.fetchone()
+
     cur.close()
-    return render_template('confirmation.html' , event=event)
+    return render_template('confirmation.html' , event=event, student_parent=student_parent)
 
 @app.route('/logout')
 def logout():
@@ -377,7 +380,7 @@ def event(EVENT_ID):
 def check(EVENT_ID):
     cur = mysql.connection.cursor()
 
-    result = cur.execute("Select tb2.*, tb1.student_id,  tb1.EVENT_ID, tb3.* FROM STUDENT tb2 LEFT JOIN student_event tb1 ON tb2.STUDENT_ID = tb1.student_id  RIGHT JOIN parents tb3 on tb3.PARENT_ID = tb2.PARENT_ID where applied = 0 OR applied IS NULL and EVENT_ID = %s", (EVENT_ID,))
+    result = cur.execute("Select tb2.*, tb1.student_id,  tb1.EVENT_ID, tb3.* FROM STUDENT tb2 LEFT JOIN student_event tb1 ON tb2.STUDENT_ID = tb1.student_id  RIGHT JOIN parents tb3 on tb3.PARENT_ID = tb2.PARENT_ID where (applied = 0 OR applied IS NULL) and EVENT_ID = %s", (EVENT_ID,))
     students = cur.fetchall()
     
     if result > 0:
