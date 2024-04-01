@@ -94,7 +94,7 @@ class RegisterForm(Form):
     ssurname = StringField('', [validators.Length(min=1,max=50)])
     password = PasswordField('', [
         validators.DataRequired(),
-        validators.EqualTo('', message='Password does not match!')
+        validators.EqualTo('confirm', message='Password does not match!')
     ])
     confirm = PasswordField('')
     fgroup = SelectField('', choices=['Mr BotMan' , 'Mr Embassador', 'Mr Mike', 'Miss Puff', 'Miss many'])
@@ -125,11 +125,10 @@ def register():
             flash("Email already exists, try another email", "danger")
             return redirect(url_for('register'))
 
-        #commit
         mysql.connection.commit()
-        #close connection
+       
         cur.close()
-        #flash
+        
         flash('You have successfully registered! You can login.', 'success')
         
         return redirect(url_for('index'))
@@ -387,19 +386,33 @@ def event(EVENT_ID):
 def check(EVENT_ID):
     cur = mysql.connection.cursor()
 
-    result = cur.execute("Select tb2.*, tb1.student_id,  tb1.EVENT_ID, tb3.* FROM STUDENT tb2 LEFT JOIN student_event tb1 ON tb2.STUDENT_ID = tb1.student_id  RIGHT JOIN parents tb3 on tb3.PARENT_ID = tb2.PARENT_ID where (applied = 0 OR applied IS NULL) and EVENT_ID = %s", (EVENT_ID,))
-    students = cur.fetchall()
-    
-    if result > 0:
-        return render_template('check.html' , students=students)
-    else:
-        msg = 'No events found'
-        return render_template('check.html', msg=msg)
-    
+ 
+    cur.execute("SELECT ygroup FROM events WHERE EVENT_ID = %s", [EVENT_ID])
+    event_ygroup = cur.fetchone()
 
-    
+    if event_ygroup:
+       
+        result = cur.execute("""
+            SELECT s.*, s.student_id, se.EVENT_ID, p.*
+            FROM STUDENT s
+            JOIN parents p ON s.PARENT_ID = p.PARENT_ID
+            LEFT JOIN student_event se ON s.STUDENT_ID = se.student_id AND se.EVENT_ID = %s
+            WHERE (se.applied = 0 OR se.applied IS NULL) AND s.ygroup = %s
+        """, (EVENT_ID, event_ygroup['ygroup']))
+        students = cur.fetchall()
+
+        if result > 0:
+            return render_template('check.html', students=students)
+        else:
+            msg = 'No unapplied students found in this year group for the event'
+            return render_template('check.html', msg=msg)
+    else:
+        msg = 'Event year group not found'
+        return render_template('check.html', msg=msg)
+
     cur.close()
 
+    
 class eventform(Form):
     eventname = StringField('Event', [validators.Length(min=1 , max=50)])
     body = TextAreaField('Body', [validators.Length(min=25)])
