@@ -35,7 +35,7 @@ s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 socket.getaddrinfo('127.0.0.1', 5000)
 
 # Adjust MySQL
-app.config['STRIPE_PUBLIC_KEY'] = 'pk_test_51JwcNHGRdaLZqAsn471bhT6wudwnnIgd5Qw60rPdBHe0zTE3dNdy75m48hFtqkbGffDfT9UyoAvOoqPGOJj6R9k8008yG075hU'
+app.config['STRIPE_PUBLIC_KEY'] = 'pk_live_51JwcNHGRdaLZqAsnxAmAopDuIAaH3KsTgqQUpFpDp7pG4RTYmXsrZ43w3S7hKkcZp21aMIeE3YeAcoTlYDSySeHQ00oCEspLtS'
 app.config['STRIPE_SECRET_KEY'] = 'sk_test_51JwcNHGRdaLZqAsnPHbMePhcH4YliIzsU0SoUXJJZGmpTUIztj8bO6YGyzVmEzn5QwQcUN7Y22DyVyyJVxopMP7600hu1tZfrB'
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
@@ -57,32 +57,33 @@ def index():
 
     return redirect(url_for('login'))
 
-def calculate_order_amount(items):
-    # Replace this constant with a calculation of the order's amount
-    # Calculate the order total on the server to prevent
-    # people from directly manipulating the amount on the client
-    return 1400
 
+@app.route('/create-checkout-session/<event_id>', methods=['POST'])
+def create_checkout_session(event_id):
+   
+    event = get_event_details(event_id)
+    event_price = event['price'] * 100  
 
-@app.route('/create-payment-intent', methods=['POST'])
-def create_payment():
     try:
-        data = json.loads(request.data)
-        # Create a PaymentIntent with the order amount and currency
-        intent = stripe.PaymentIntent.create(
-            amount=calculate_order_amount(data['items']),
-            currency='eur',
-            automatic_payment_methods={
-                'enabled': True,
-            },
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': event['name'],
+                    },
+                    'unit_amount': int(event_price),
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('cancel', _external=True),
         )
-        return jsonify({
-            'clientSecret': intent['client_secret']
-        })
+        return jsonify({'id': checkout_session.id})
     except Exception as e:
         return jsonify(error=str(e)), 403
-
-
 
 
 class RegisterForm(Form):
@@ -168,6 +169,29 @@ def isNotAdmin(f):
     return wrap
 
 
+def get_event_details(event_id):
+  
+    cursor = mysql.connection.cursor()
+    
+
+    query = "SELECT event_id, name, price FROM events WHERE event_id = %s"
+    cursor.execute(query, (event_id,))
+    
+   
+    event = cursor.fetchone()
+    cursor.close()
+    
+  
+    if event:
+
+        return {
+            'event_id': event[0],
+            'name': event[1],
+            'price': event[2]
+        }
+    else:
+       
+        return None
 
 
 
