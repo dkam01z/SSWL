@@ -69,7 +69,7 @@ def create_checkout_session(event_id):
             payment_method_types=['card'],
             line_items=[{
                 'price_data': {
-                    'currency': 'usd',
+                    'currency': 'gbp',
                     'product_data': {
                         'name': event['name'],
                     },
@@ -350,20 +350,51 @@ from datetime import datetime
 from flask import render_template, session, request
 
 
+
+
+
+
+
 @app.route('/dashboard', methods=['GET'])
 @is_logged_in
 def dashboard():
     cur = mysql.connection.cursor()
 
-    
+ 
+    delete_parvent_references_query = """
+    DELETE FROM parvent 
+    WHERE event_id IN (
+        SELECT EVENT_ID 
+        FROM EVENTS 
+        WHERE DATE_ADD(date_created, INTERVAL number_of_days DAY) < NOW()
+    )
+    """
+    cur.execute(delete_parvent_references_query)
+
+ 
+    delete_student_event_references_query = """
+    DELETE FROM student_event 
+    WHERE event_id IN (
+        SELECT EVENT_ID 
+        FROM EVENTS 
+        WHERE DATE_ADD(date_created, INTERVAL number_of_days DAY) < NOW()
+    )
+    """
+    cur.execute(delete_student_event_references_query)
+
+   
+    delete_events_query = """
+    DELETE FROM EVENTS 
+    WHERE DATE_ADD(date_created, INTERVAL number_of_days DAY) < NOW()
+    """
+    cur.execute(delete_events_query)
+
     if session['email'].lower() == 'dankamran1@gmail.com':
         cur.execute("SELECT *, DATEDIFF(event_date, CURDATE()) AS deadline FROM EVENTS;")
         allevents = cur.fetchall()
-     
         cur.close()
         return render_template('dashboard.html', events=allevents)
     else:
-      
         cur.execute("SELECT student_id, ygroup FROM STUDENT WHERE PARENT_ID = (SELECT Parent_id FROM PARENTS WHERE email = %s)", [session['email']])
         student_info = cur.fetchone()
 
@@ -371,7 +402,6 @@ def dashboard():
             student_id = student_info['student_id']
             ygroup = student_info['ygroup']
 
-            
             result = cur.execute("""
                 SELECT e.*, DATEDIFF(e.event_date, CURDATE()) AS deadline FROM EVENTS e
                 LEFT JOIN student_event se ON e.EVENT_ID = se.event_id AND se.student_id = %s
@@ -379,7 +409,6 @@ def dashboard():
             """, (student_id, ygroup))
 
             events = cur.fetchall()
-
             cur.close()
 
             if result > 0:
