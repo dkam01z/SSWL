@@ -29,24 +29,17 @@ app = Flask(__name__, static_folder='templates',
             static_url_path='', template_folder='templates')
 app.config.from_pyfile('config.cfg')
 
-app.secret_key = 'SECRET123'
-s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+
 
 socket.getaddrinfo('127.0.0.1', 5000)
 
-# Adjust MySQL
-app.config['STRIPE_PUBLIC_KEY'] = 'pk_live_51JwcNHGRdaLZqAsnxAmAopDuIAaH3KsTgqQUpFpDp7pG4RTYmXsrZ43w3S7hKkcZp21aMIeE3YeAcoTlYDSySeHQ00oCEspLtS'
-app.config['STRIPE_SECRET_KEY'] = 'sk_test_51JwcNHGRdaLZqAsnPHbMePhcH4YliIzsU0SoUXJJZGmpTUIztj8bO6YGyzVmEzn5QwQcUN7Y22DyVyyJVxopMP7600hu1tZfrB'
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'SECRET123'
-app.config['MYSQL_DB'] = 'sswl'
-app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
 
-stripe.api_key = app.config['STRIPE_SECRET_KEY']
-#INITIALIZE MYSQL
+# Initialize extensions
 mysql = MySQL(app)
-
+mail = Mail(app)
+stripe.api_key = app.config['STRIPE_SECRET_KEY']
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
 
 @app.route("/")
 def index():
@@ -58,12 +51,16 @@ def index():
     return redirect(url_for('login'))
 
 
-@app.route('/create-checkout-session/<event_id>', methods=['POST'])
-def create_checkout_session(event_id):
-   
+@app.route('/create-checkout-session/', methods=['POST'])
+def create_checkout_session():
+    data = request.get_json()
+    event_id = data.get('event_id')
+    
     event = get_event_details(event_id)
-    event_price = event['price'] * 100  
 
+    eventname = event['name']
+    fee = event['price'] * 100
+   
     try:
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -71,19 +68,28 @@ def create_checkout_session(event_id):
                 'price_data': {
                     'currency': 'gbp',
                     'product_data': {
-                        'name': event['name'],
+                        'name': eventname,
                     },
-                    'unit_amount': int(event_price),
+                    'unit_amount': int(fee),
                 },
                 'quantity': 1,
             }],
             mode='payment',
-            success_url=url_for('success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-            cancel_url=url_for('cancel', _external=True),
+            success_url=url_for('thanks', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+           
         )
-        return jsonify({'id': checkout_session.id})
+        # Debug: Print checkout session details
+        print("Checkout Session:", checkout_session)
+        return jsonify({'url': checkout_session.url})
     except Exception as e:
+        # Debug: Print error details
+        print("Error:", str(e))
         return jsonify(error=str(e)), 403
+
+@app.route('/thanks')
+def thanks():
+    return render_template('thanks.html')
+
 
 
 class RegisterForm(Form):
@@ -170,30 +176,20 @@ def isNotAdmin(f):
 
 
 def get_event_details(event_id):
-  
-    cursor = mysql.connection.cursor()
+    cur = mysql.connection.cursor()
+ 
+    query = "SELECT event_id, eventname, fee FROM events WHERE event_id = %s"
+    cur.execute(query, [event_id])
+    event = cur.fetchone()
+    cur.close()
     
-
-    query = "SELECT event_id, name, price FROM events WHERE event_id = %s"
-    cursor.execute(query, (event_id,))
-    
-   
-    event = cursor.fetchone()
-    cursor.close()
-    
-  
     if event:
-
         return {
-            'event_id': event[0],
-            'name': event[1],
-            'price': event[2]
+            'event_id': event['event_id'],
+            'name': event['eventname'],
+            'price': event['fee']
         }
-    else:
-       
-        return None
-
-
+    return None
 
 mail = Mail(app)
 
@@ -420,19 +416,21 @@ def dashboard():
             msg = 'No student or year group found for this parent'
             return render_template('dashboard.html', msg=msg)
 
-
 @app.route('/event/<string:EVENT_ID>/')
 @is_logged_in
 @isNotAdmin
-
 def event(EVENT_ID):
     cur = mysql.connection.cursor()
 
     result = cur.execute("SELECT * FROM events WHERE EVENT_ID = %s", [EVENT_ID])
     event = cur.fetchone()
     cur.close()
-    return render_template('event.html', event=event)
 
+    if event:
+        return render_template('event.html', event=event, stripe_public_key=app.config['STRIPE_PUBLIC_KEY'],event_id=EVENT_ID)
+    else:
+        flash('Event not found', 'danger')
+        return redirect(url_for('dashboard'))
 
 @app.route('/check/<string:EVENT_ID>')
 @is_logged_in

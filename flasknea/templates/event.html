@@ -1,16 +1,52 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-  <h1>{{event.eventname}}</h1>
-  <small>Written by {{event.creator}} on {{event.create_date}}</small>
+  <h1>{{ event.eventname }}</h1>
+  <small>Written by {{ event.creator }} on {{ event.create_date }}</small>
   <hr>
-  {% if event.fee > 0 %}
-    <a href="/checkout.html" class="btn btn-success pull-right">Apply</a>
-  {% else %}
-    <a href="confirmation" class="btn btn-success pull-right">Apply</a>
-  {% endif %}
 
   <div>
-    {{event.body | safe}}
+    {{ event.body | safe }}
   </div>
+
+  <div class="d-flex justify-content-center py-5">
+    {% if event.fee > 0 %}
+      <button id="checkout-button" class="btn btn-outline-success" data-event-id="{{ event_id }}">Apply</button>
+    {% else %}
+      <a href="{{ url_for('confirmation', EVENT_ID=event.EVENT_ID) }}" class="btn btn-outline-success">Apply</a>
+    {% endif %}
+  </div>
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('checkout-button').addEventListener('click', function () {
+        var eventId = this.getAttribute('data-event-id');
+        console.log("Event ID:", eventId); // Debugging: Log event ID to console
+
+        fetch('/create-checkout-session/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            event_id: eventId
+          }),
+        })
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (session) {
+          if (session.error) {
+            alert(session.error);
+          } else {
+            window.location.href = session.url;  // Redirect to the checkout session URL
+          }
+        })
+        .catch(function (error) {
+          console.error('Error:', error);
+        });
+      });
+    });
+  </script>
 {% endblock %}
