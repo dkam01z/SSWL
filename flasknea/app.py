@@ -24,6 +24,8 @@ import stripe
 import json
 import os
 from flask import jsonify
+from datetime import datetime
+from flask import render_template, session, request
 
 app = Flask(__name__, static_folder='templates',
             static_url_path='', template_folder='templates')
@@ -342,8 +344,7 @@ def logout():
     flash('You have suessfully logged out', 'success')
     return redirect(url_for('login'))   
 
-from datetime import datetime
-from flask import render_template, session, request
+
 
 
 
@@ -429,6 +430,10 @@ def event(EVENT_ID):
     if event:
         return render_template('event.html', event=event, stripe_public_key=app.config['STRIPE_PUBLIC_KEY'],event_id=EVENT_ID)
     else:
+
+        
+
+
         flash('Event not found', 'danger')
         return redirect(url_for('dashboard'))
 

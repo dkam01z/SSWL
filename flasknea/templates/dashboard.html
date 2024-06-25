@@ -2,56 +2,57 @@
 
 {% block body %}
 
-  <style>
+<style>
+/* Optional: Add custom styles if necessary */
+</style>
 
+<h1>Dashboard <small> Welcome {{session.email}}</small></h1>
 
-  </style>
-
-  <h1>Dashboard <small> Welcome {{session.email}}</small></h1>
-  
-  {% if session.logged_in %}
-    {% if session['email'] == 'dankamran1@gmail.com' %}
-      <a class="btn btn-success" href="/add_event"> Add event</a> 
-    {% endif %}
+{% if session.logged_in %}
+  {% if session['email'] == 'dankamran1@gmail.com' %}
+    <a class="btn btn-success" href="/add_event"> Add event</a> 
   {% endif %}
-  <hr>
-  <table class="table table-striped">
+{% endif %}
+<hr>
+<table class="table table-striped">
+  <thead>
     <tr>
-      <th>ID</th>
+      <th class="d-none d-md-table-cell">ID</th>
       <th>Event name</th>
-      <th>Creator</th>
-      <th>Date_Created</th>
-      <th>Deadline</th>
+      <th class="d-none d-md-table-cell">Creator</th>
+      <th class="d-none d-md-table-cell">Date_Created</th>
+      <th class="d-none d-md-table-cell">Deadline</th>
       <th>Fee</th>
-   
-      
+      {% if session.logged_in %}
+        <th>Actions</th>
+      {% endif %}
     </tr>
+  </thead>
+  <tbody>
     {% for event in events %}
       <tr>
-        <td>{{event.EVENT_ID}}</td>
+        <td class="d-none d-md-table-cell">{{event.EVENT_ID}}</td>
         <td>{{event.eventname}}</td>
-        <td>{{event.creator}}</td>
-        <td>{{event.date_created}}</td>
-        <td>{{event.deadline}} days</td>
+        <td class="d-none d-md-table-cell">{{event.creator}}</td>
+        <td class="d-none d-md-table-cell">{{event.date_created}}</td>
+        <td class="d-none d-md-table-cell">{{event.deadline}} days</td>
         <td>£{{event.fee}}</td>
         {% if session.logged_in %}
-          {% if session['email'] == 'dankamran1@gmail.com' %}
-            <td><a href="edit_event/{{event.EVENT_ID}}" class="btn btn float-start">Edit</a></td>
-            <td><a href="check/{{event.EVENT_ID}}" class="btn btn-primary float-end">Check</a></td>  
-          {% else%}
-            <td><a href="event/{{event.EVENT_ID}}" class="btn btn-success pull-right">Apply</a></td>
-          {% endif %}
+          <td>
+            {% if session['email'] == 'dankamran1@gmail.com' %}
+              <a href="edit_event/{{event.EVENT_ID}}" class="btn btn-sm btn-secondary">Edit</a>
+              <a href="check/{{event.EVENT_ID}}" class="btn btn-sm btn-primary">Check</a>
+              <form action="{{url_for('delete_event', EVENT_ID=event.EVENT_ID)}}" method="post" class="d-inline">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="submit" value="Delete" class="btn btn-sm btn-danger">
+              </form>
+            {% else %}
+              <a href="event/{{event.EVENT_ID}}" class="btn btn-sm btn-success">Apply</a>
+            {% endif %}
+          </td>
         {% endif %}
-
-        <td>
-          {% if session['email'] == 'dankamran1@gmail.com' %}
-            <form action="{{url_for('delete_event', EVENT_ID=event.EVENT_ID)}}" method="post">
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="submit" value="Delete" class="btn btn-danger float-right">
-          </form>
-          {% endif %}
-        </td>
       </tr>
     {% endfor %}
-  </table>
+  </tbody>
+</table>
 {% endblock %}
